@@ -6,3 +6,7 @@ build/
 *.jar
 *.war
 *.ear
+
+.settings/*.prefs
+.classpath
+.project

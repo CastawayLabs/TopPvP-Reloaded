@@ -1,4 +1,4 @@
 TopPvP-Reloaded
 ===============
 
-The PvP Plugin for Every Server.
+The PvP Plugin for every PvP server.
