@@ -86,7 +86,7 @@ public class TopPvP extends JavaPlugin {
 	 * 
 	 * 
 	 */
-
+	@Override
 	public void onEnable() {
 		
 		//Vault Hook
@@ -100,6 +100,8 @@ public class TopPvP extends JavaPlugin {
 			setEnabled(false);
 			return;
 		}
+		
+		
 		
 		if (!getDataFolder().exists())
 			getDataFolder().mkdirs();
