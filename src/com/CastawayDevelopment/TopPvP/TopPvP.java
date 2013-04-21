@@ -23,11 +23,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class TopPvP {
+public class TopPvP extends JavaPlugin {
 	
 	/**
 	 * Access Permissions via Vault
@@ -83,7 +86,7 @@ public class TopPvP {
 	 * 
 	 * 
 	 */
-	@Override
+
 	public void onEnable() {
 		
 		//Vault Hook

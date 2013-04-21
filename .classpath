@@ -5,5 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Alan/Documents/GitHub/craftbukkit.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Alan/Documents/GitHub/Vault.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ktar/Desktop/bukkit-1.5.1-R0.3-20130413.070004-1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ktar/Desktop/Vault (7).jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
