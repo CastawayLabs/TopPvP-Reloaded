@@ -20,7 +20,11 @@ public class TopPVPKillDeathListener implements Listener{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
-	
+	/**
+	 * Player Death Listener
+	 * 
+	 * @param event
+	 */
 	@EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDeath(EntityDeathEvent event){
         Entity entity = event.getEntity();
