@@ -18,25 +18,25 @@
  */
 package com.CastawayDevelopment.TopPvP;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.CastawayDevelopment.TopPvP.Listeners.TopPVPKillDeathListener;
+import com.CastawayDevelopment.TopPvP.Listeners.TopPVPPlayerJoinListener;
+import com.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TopPvP extends JavaPlugin {
-	
+
 	/**
 	 * Access Permissions via Vault
 	 */
 	public static Permission permission = null;
-	
+
 	/**
 	 * Access Economy via Vault
 	 */
@@ -46,21 +46,24 @@ public class TopPvP extends JavaPlugin {
 	 * Access private instance of this plugin.
 	 */
 	private static TopPvP active = null;
-	
+
+	private static Database database;
+	private static ScoreboardManager scoreboardManager;
+
 	/**
 	 * Get this central plugin name.
-	 * 
+	 *
 	 * @return Name.
 	 */
 	public static String getPluginName() {
 		return TopPvP.active.getDescription().getName();
 	}
-	
+
 	/**
 	 * Log using the TopPvP logger.
 	 * (Prefixed with <code>[TopPvP]</code>; to add on component, add prefix
 	 * to message.)
-	 * 
+	 *
 	 * @param msg
 	 *            Message to log with level <code>INFO</code>.
 	 */
@@ -72,7 +75,7 @@ public class TopPvP extends JavaPlugin {
 	 * Log using the TopPvP logger.
 	 * (Prefixed with <code>[TopPvP]</code>; to add on component, add prefix
 	 * to message.)
-	 * 
+	 *
 	 * @param level
 	 *            Level to log with.
 	 * @param msg
@@ -81,15 +84,21 @@ public class TopPvP extends JavaPlugin {
 	public static void log(Level level, String msg) {
 		Logger.getLogger("TopPvP").log(level, "[TopPvP] " + msg);
 	}
-	
+
+	public static Database getMysqlDatabase() {
+		return database;
+	}
+	public static ScoreboardManager getScoreboardManager() {
+		return scoreboardManager;
+	}
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public void onEnable() {
-		
-		//Vault Hook
+		// Vault Hook
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
 			getServer().getLogger().severe("================= TopPvP- Reloaded ==================");
 			getServer().getLogger().severe("Vault is required for TopPvP- Reloaded to operate!");
@@ -100,25 +109,32 @@ public class TopPvP extends JavaPlugin {
 			setEnabled(false);
 			return;
 		}
-		
-		
-		
+		// TODO check if scoreboard plugin exists!
+
+		// Plugin folder
 		if (!getDataFolder().exists())
 			getDataFolder().mkdirs();
-		
+
 		TopPvP.active = this;
-		
+
+		scoreboardManager = new ScoreboardManager(this);
+
+		// Hooks
+		TopPVPKillDeathListener deathListener = new TopPVPKillDeathListener(this);
+		TopPVPPlayerJoinListener joinListener = new TopPVPPlayerJoinListener(this);
+
+		// Database
+		database = new Database(this);
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public void onDisable() {
-		
 		TopPvP.active = null;
 	}
-	
-	
+
+
 }
