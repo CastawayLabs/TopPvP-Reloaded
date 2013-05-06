@@ -1,9 +1,9 @@
 package com.CastawayDevelopment.TopPvP;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.dbutils.handlers.MapListHandler;
+import lib.apache.commons.dbutils.DbUtils;
+import lib.apache.commons.dbutils.QueryRunner;
+import lib.apache.commons.dbutils.ResultSetHandler;
+import lib.apache.commons.dbutils.handlers.MapListHandler;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;

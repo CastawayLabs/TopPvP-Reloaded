@@ -2,8 +2,8 @@ package com.CastawayDevelopment.TopPvP.Managers;
 
 import com.CastawayDevelopment.TopPvP.TopPvP;
 import org.bukkit.entity.Player;
-import yt.codebukkit.scoreboardapi.Scoreboard;
-import yt.codebukkit.scoreboardapi.ScoreboardAPI;
+import codebukkit.scoreboardapi.Scoreboard;
+import codebukkit.scoreboardapi.ScoreboardAPI;
 
 import java.util.Map;
 
