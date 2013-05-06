@@ -1,4 +1,4 @@
-package codebukkit.scoreboardapi;
+package lib.codebukkit.scoreboardapi;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
