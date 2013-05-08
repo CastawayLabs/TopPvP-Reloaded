@@ -27,7 +27,6 @@ import com.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TopPvP extends JavaPlugin {
@@ -118,7 +117,7 @@ public class TopPvP extends JavaPlugin {
 		TopPvP.active = this;
 
 		scoreboardManager = new ScoreboardManager(this);
-
+		
 		// Hooks
 		TopPVPKillDeathListener deathListener = new TopPVPKillDeathListener(this);
 		TopPVPPlayerJoinListener joinListener = new TopPVPPlayerJoinListener(this);
