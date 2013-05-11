@@ -46,7 +46,7 @@ public class TopPvP extends JavaPlugin {
 	 */
 	private static TopPvP active = null;
 
-	private static Database database;
+	private static DatabaseManager databaseManager;
 	private static ScoreboardManager scoreboardManager;
 
 	/**
@@ -84,8 +84,8 @@ public class TopPvP extends JavaPlugin {
 		Logger.getLogger("TopPvP").log(level, "[TopPvP] " + msg);
 	}
 
-	public static Database getMysqlDatabase() {
-		return database;
+	public static DatabaseManager getDatabaseManager() {
+		return databaseManager;
 	}
 	public static ScoreboardManager getScoreboardManager() {
 		return scoreboardManager;
@@ -123,7 +123,7 @@ public class TopPvP extends JavaPlugin {
 		TopPVPPlayerJoinListener joinListener = new TopPVPPlayerJoinListener(this);
 
 		// Database
-		database = new Database(this);
+		databaseManager = new DatabaseManager(this);
 	}
 
 	/**

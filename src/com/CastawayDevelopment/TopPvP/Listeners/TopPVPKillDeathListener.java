@@ -18,7 +18,8 @@
  */
 package com.CastawayDevelopment.TopPvP.Listeners;
 
-import com.CastawayDevelopment.TopPvP.Database;
+import com.CastawayDevelopment.TopPvP.DatabaseManager;
+import com.avaje.ebean.annotation.Sql;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -30,6 +31,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.CastawayDevelopment.TopPvP.TopPvP;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 
 public class TopPVPKillDeathListener implements Listener {
@@ -59,17 +62,25 @@ public class TopPVPKillDeathListener implements Listener {
 				if (killer instanceof Player) {
 					// Player killed by player
 					// log it.
-					Map dbKiller = plugin.getMysqlDatabase().getPlayer((Player)killer);
-					Map dbVictim = plugin.getMysqlDatabase().getPlayer((Player)victim);
-					int kills = (Integer)dbKiller.get("kills");
-					int deaths = (Integer)dbVictim.get("deaths");
-					kills++;
-					deaths++;
-					// update db
-					Database db = plugin.getMysqlDatabase();
-					db.updateQuery("UPDATE "+Database.tableName+" SET kills='"+kills+"' WHERE username='"+((Player) killer).getName()+"'");
-					db.updateQuery("UPDATE "+Database.tableName+" SET deaths='"+deaths+"' WHERE username='"+((Player) victim).getName()+"'");
-					plugin.getScoreboardManager().update();
+					DatabaseManager manager = plugin.getDatabaseManager();
+					ResultSet dbKiller = manager.getPlayer((Player) killer);
+					ResultSet dbVictim = manager.getPlayer((Player) victim);
+
+					try {
+						int kills = dbKiller.getInt("kills");
+						int deaths = dbVictim.getInt("deaths");
+
+						dbKiller.updateInt("kills", kills++);
+						dbVictim.updateInt("deaths", deaths++);
+
+						// Update records (could be more efficient using a single SQL statement..)
+						dbKiller.updateRow();
+						dbVictim.updateRow();
+
+						plugin.getScoreboardManager().update();
+					} catch (SQLException exception) {
+						plugin.getLogger().warning("Could not get/update players (death)");
+					}
 				} else if (killer instanceof Monster) {
 					// Player killed by monster
 				}

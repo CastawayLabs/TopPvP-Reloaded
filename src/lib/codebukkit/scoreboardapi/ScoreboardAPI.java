@@ -93,11 +93,11 @@ public class ScoreboardAPI extends JavaPlugin {
 
 	//initialize all static constants
 	private void initialize() {
-		NAME = getDescription().getName();
-		VERSION = getDescription().getVersion();
+		NAME = "ScoreboardAPI";//getDescription().getName();
+		VERSION = "?";//getDescription().getVersion();
 		AUTHORS = "";
-		for(String s:getDescription().getAuthors())
-			AUTHORS = AUTHORS + s + ", ";
+		//for(String s:getDescription().getAuthors())
+		//	AUTHORS = AUTHORS + s + ", ";
 		CMD_PREFIX = "[" + NAME + "] ";
 		PREFIX = "[" + PREFIX_COLOR + NAME + ChatColor.RESET + "] ";
 		NO_PERMISSIONS = PREFIX + ChatColor.DARK_RED + "You don't have permissions!";

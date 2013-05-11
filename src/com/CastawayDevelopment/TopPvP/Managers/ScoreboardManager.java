@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import lib.codebukkit.scoreboardapi.Scoreboard;
 import lib.codebukkit.scoreboardapi.ScoreboardAPI;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 
 public class ScoreboardManager {
@@ -37,7 +39,9 @@ public class ScoreboardManager {
 	}
 
 	public void createScoreboards() {
-		api = ScoreboardAPI.getInstance();
+		api = new ScoreboardAPI();
+		api.onEnable();
+
 		kills = api.createScoreboard("toppvp_kills", 0);
 		kills.setType(Scoreboard.Type.SIDEBAR);
 		kills.setScoreboardName("Kills");
@@ -52,31 +56,39 @@ public class ScoreboardManager {
 
 		Player players[] = plugin.getServer().getOnlinePlayers();
 		for (Player player : players) {
-			Map dbPlayer = plugin.getMysqlDatabase().getPlayer(player);
+			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
 			if (dbPlayer == null) {
 				// Not found?
 				TopPvP.log("NULL");
 				continue;
 			}
 
-			int killsInt = (Integer)dbPlayer.get("kills");
-			int deathsInt = (Integer)dbPlayer.get("deaths");
+			try {
+				int killsInt = dbPlayer.getInt("kills");
+				int deathsInt = dbPlayer.getInt("deaths");
 
-			kills.setItem(player.getName(), killsInt);
-			//deaths.setItem(player.getName(), deathsInt);
-			if (!kills.hasPlayerAdded(player)) {
-				kills.showToPlayer(player, true);
+				kills.setItem(player.getName(), killsInt);
+				//deaths.setItem(player.getName(), deathsInt);
+				if (!kills.hasPlayerAdded(player)) {
+					kills.showToPlayer(player, true);
+				}
+				//if (!deaths.hasPlayerAdded(player)) {
+				//	deaths.showToPlayer(player, true);
+				//}
+			} catch (SQLException exception) {
+				plugin.getLogger().warning("Could not fetch player scores");
 			}
-			//if (!deaths.hasPlayerAdded(player)) {
-			//	deaths.showToPlayer(player, true);
-			//}
 		}
 	}
 
 	public void addPlayer (Player player) {
-		Map dbPlayer = plugin.getMysqlDatabase().getPlayer(player);
-		kills.setItem(player.getName(), (Integer)dbPlayer.get("kills"));
-		//deaths.setItem(player.getName(), (Integer)dbPlayer.get("deaths"));
+		try {
+			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
+			kills.setItem(player.getName(), dbPlayer.getInt("kills"));
+			//deaths.setItem(player.getName(), (Integer)dbPlayer.get("deaths"));
+		} catch (SQLException exception) {
+			plugin.getLogger().warning("Could not create player!");
+		}
 	}
 
 }
