@@ -1,5 +1,7 @@
 target/
 build/
+bin/
+out/
 *.class
 
 # Package Files #
