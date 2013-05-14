@@ -19,6 +19,7 @@
 package com.CastawayDevelopment.TopPvP.Managers;
 
 import com.CastawayDevelopment.TopPvP.TopPvP;
+import com.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import org.bukkit.entity.Player;
 import lib.codebukkit.scoreboardapi.Scoreboard;
 import lib.codebukkit.scoreboardapi.ScoreboardAPI;
@@ -53,7 +54,7 @@ public class ScoreboardManager {
 
 	public void update() {
 		TopPvP.log("Hello");
-
+		plugin.getDatabaseManager();
 		Player players[] = plugin.getServer().getOnlinePlayers();
 		for (Player player : players) {
 			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);

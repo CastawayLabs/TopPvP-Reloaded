@@ -21,7 +21,7 @@ package com.CastawayDevelopment.TopPvP;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.CastawayDevelopment.TopPvP.DatabaseManager;
+import com.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import com.CastawayDevelopment.TopPvP.Listeners.TopPVPKillDeathListener;
 import com.CastawayDevelopment.TopPvP.Listeners.TopPVPPlayerJoinListener;
 import com.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
