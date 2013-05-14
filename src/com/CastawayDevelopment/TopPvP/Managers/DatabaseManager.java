@@ -1,9 +1,11 @@
-package com.CastawayDevelopment.TopPvP;
+package com.CastawayDevelopment.TopPvP.Managers;
 
 import lib.PatPeter.SQLibrary.DatabaseHandler;
 import lib.PatPeter.SQLibrary.MySQL;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.entity.Player;
+
+import com.CastawayDevelopment.TopPvP.TopPvP;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
