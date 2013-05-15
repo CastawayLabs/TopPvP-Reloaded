@@ -28,9 +28,6 @@ import com.CastawayDevelopment.TopPvP.TopPvP;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * @author matejkramny
- */
 public class DatabaseManager {
 	private TopPvP plugin;
 

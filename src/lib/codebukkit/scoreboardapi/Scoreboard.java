@@ -11,13 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: ml
- * Date: 19.03.13
- * Time: 19:57
- * To change this template use File | Settings | File Templates.
- */
 public class Scoreboard {
     Scoreboard(String name, int priority, ScoreboardAPI plugin) {
         this.name = name;

@@ -54,7 +54,6 @@ public class ScoreboardManager {
 
 	public void update() {
 		TopPvP.log("Hello");
-		plugin.getDatabaseManager();
 		Player players[] = plugin.getServer().getOnlinePlayers();
 		for (Player player : players) {
 			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);

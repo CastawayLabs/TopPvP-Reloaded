@@ -20,7 +20,7 @@
 //Test
 package com.CastawayDevelopment.TopPvP.Listeners;
 
-import com.CastawayDevelopment.TopPvP.DatabaseManager;
+import com.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import com.avaje.ebean.annotation.Sql;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
