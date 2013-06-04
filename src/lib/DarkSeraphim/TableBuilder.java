@@ -1,4 +1,4 @@
-package org.sensationcraft.login.sql;
+package lib.DarkSeraphim;
 
 import java.util.HashMap;
 import java.util.Map;

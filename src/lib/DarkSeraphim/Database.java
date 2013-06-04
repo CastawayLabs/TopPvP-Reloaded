@@ -1,4 +1,4 @@
-package org.sensationcraft.login.sql;
+package lib.DarkSeraphim;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,36 +6,33 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.sensationcraft.login.SCLogin;
 
 public abstract class Database
 {
 
 	protected Connection con;
-
+    private boolean debug = true;
 	private final Logger log;
-
+	public abstract boolean initialize();
+	public abstract boolean connect();
+	
 	protected Database(Logger log)
 	{
 		this.log = log;
 	}
-
-	public abstract boolean initialize();
-
-	public abstract boolean connect();
-        
-        public void close()
+	
+    public void close()
+    {
+        try
         {
-            try
-            {
-                this.con.close();
-                this.con = null;
-            }
-            catch(SQLException ex)
-            {
-                log("An exception occurred while closing the connection: %s", ex.getMessage());
-            }
+            this.con.close();
+            this.con = null;
         }
+        catch(SQLException ex)
+        {
+            log("An exception occurred while closing the connection: %s", ex.getMessage());
+        }
+    }
 
 	public boolean isReady()
 	{
@@ -47,56 +44,55 @@ public abstract class Database
 		return true;
 	}
 
+	
 	public abstract boolean checkTable(String name);
-
 	public abstract void createTable(TableBuilder builder);
-
 	public abstract ResultSet executeQuery(String query);
-
 	public abstract PreparedStatement prepare(String query);
         
-        public static void synchronizedExecuteUpdate(final PreparedStatement stmt, final Object lock, final Object...params)
+	
+    public static void synchronizedExecuteUpdate(final PreparedStatement stmt, final Object lock, final Object...params)
+    {
+        synchronized(lock)
         {
-            synchronized(lock)
+            try
             {
-                try
+                for(int i = 1; i <= params.length; i++)
                 {
-                    for(int i = 1; i <= params.length; i++)
-                    {
-                        stmt.setObject(i, params[i-1]);
-                    }
-                    stmt.executeUpdate();
+                    stmt.setObject(i, params[i-1]);
                 }
-                catch(SQLException ex)
-                {
-                    ex.printStackTrace();
-                }
+                stmt.executeUpdate();
+            }
+            catch(SQLException ex)
+            {
+                ex.printStackTrace();
             }
         }
+    }
         
-        public static ResultSet synchronizedExecuteQuery(final PreparedStatement stmt, final Object lock, final Object...params)
+    public static ResultSet synchronizedExecuteQuery(final PreparedStatement stmt, final Object lock, final Object...params)
+    {
+        synchronized(lock)
         {
-            synchronized(lock)
+            try
             {
-                try
+                for(int i = 1; i <= params.length; i++)
                 {
-                    for(int i = 1; i <= params.length; i++)
-                    {
-                        stmt.setObject(i, params[i-1]);
-                    }
-                    return stmt.executeQuery();
+                    stmt.setObject(i, params[i-1]);
                 }
-                catch(SQLException ex)
-                {
-                    ex.printStackTrace();
-                }
-                return null;
+                return stmt.executeQuery();
             }
+            catch(SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+            return null;
         }
+    }
 
 	protected void log(String msg, Object...o)
 	{
-                if(SCLogin.debug)
+				if(debug)
                 {
                     StackTraceElement[] trace = Thread.currentThread().getStackTrace();
                     for(StackTraceElement t : trace)

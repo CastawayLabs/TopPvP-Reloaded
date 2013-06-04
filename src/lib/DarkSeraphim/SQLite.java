@@ -1,4 +1,4 @@
-package org.sensationcraft.login.sql;
+package lib.DarkSeraphim;
 
 import java.io.BufferedWriter;
 import java.io.File;

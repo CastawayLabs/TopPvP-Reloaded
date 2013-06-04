@@ -1,4 +1,4 @@
-package org.sensationcraft.login.sql;
+package lib.DarkSeraphim;
 
 public class Reference 
 {
