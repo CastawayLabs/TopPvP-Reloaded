@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.CastawayDevelopment.TopPvP.Managers;
+package org.CastawayDevelopment.TopPvP.Managers;
 
 import lib.PatPeter.SQLibrary.DatabaseHandler;
 import lib.PatPeter.SQLibrary.MySQL;
 import lib.PatPeter.SQLibrary.SQLite;
 import org.bukkit.entity.Player;
 
-import com.CastawayDevelopment.TopPvP.TopPvP;
+import org.CastawayDevelopment.TopPvP.TopPvP;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

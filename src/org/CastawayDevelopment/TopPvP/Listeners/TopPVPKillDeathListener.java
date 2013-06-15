@@ -18,9 +18,10 @@
  */
 
 //Test
-package com.CastawayDevelopment.TopPvP.Listeners;
+package org.CastawayDevelopment.TopPvP.Listeners;
 
-import com.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
+import org.CastawayDevelopment.TopPvP.TopPvP;
+import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import com.avaje.ebean.annotation.Sql;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -30,8 +31,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-
-import com.CastawayDevelopment.TopPvP.TopPvP;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

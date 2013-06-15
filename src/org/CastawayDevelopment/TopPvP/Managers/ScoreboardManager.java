@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.CastawayDevelopment.TopPvP.Managers;
+package org.CastawayDevelopment.TopPvP.Managers;
 
-import com.CastawayDevelopment.TopPvP.TopPvP;
-import com.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
+import org.CastawayDevelopment.TopPvP.TopPvP;
+import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import org.bukkit.entity.Player;
 import lib.codebukkit.scoreboardapi.Scoreboard;
 import lib.codebukkit.scoreboardapi.ScoreboardAPI;
