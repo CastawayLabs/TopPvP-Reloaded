@@ -1,4 +1,4 @@
-package lib.DarkSeraphim;
+package com.github.DarkSeraphim.sql;
 
 public class Reference 
 {

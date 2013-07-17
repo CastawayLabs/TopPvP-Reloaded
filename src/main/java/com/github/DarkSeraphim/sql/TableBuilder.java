@@ -1,4 +1,4 @@
-package lib.DarkSeraphim;
+package com.github.DarkSeraphim.sql;
 
 import java.util.HashMap;
 import java.util.Map;

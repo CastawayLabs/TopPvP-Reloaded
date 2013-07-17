@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.CastawayDevelopment.TopPvP.Listeners;
+package org.CastawayDevelopment.TopPvP.Listeners;
 
-import com.CastawayDevelopment.TopPvP.TopPvP;
+import org.CastawayDevelopment.TopPvP.TopPvP;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

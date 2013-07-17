@@ -1,8 +1,6 @@
-package lib.DarkSeraphim;
+package com.github.DarkSeraphim.sql;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -13,7 +11,7 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class SQLite extends Database
+public class H2 extends Database
 {
 
 	private enum Type
@@ -37,34 +35,48 @@ public class SQLite extends Database
 			return this.sql;
 		}
 
-		public static Type getType(String keyword)
+		public static H2.Type getType(String keyword)
 		{
-			for(Type t : values())
+			for(H2.Type t : values())
 			{
 				if(t.getSQL().equalsIgnoreCase(keyword)) return t;
 			}
-			return Type.NONE;
+			return H2.Type.NONE;
 		}
 	}
 
-	private File dbfile;
+	private File parent;
+        
+        private final String dbname;
+        
+        private final String user;
+        
+        private final String pass;
 
-	public SQLite(Logger log, File dbfile)
+        public H2(Logger log, File parent, String dbname, String username)
+        {
+            this(log, parent, dbname, username, "");
+        }
+        
+	public H2(Logger log, File parent, String dbname, String username, String password)
 	{
 		super(log);
-		this.dbfile = dbfile;
-		if(!this.dbfile.exists())
+		this.parent = parent;
+                this.dbname = dbname;
+                this.user = username;
+                this.pass = password;
+		if(!this.parent.exists())
 		{
-			try
-			{
-				if(!this.dbfile.createNewFile())
-					throw new IOException("Failed to create file");
-			}
-			catch(IOException ex)
-			{
-				this.log("Failed to find (and create) file at %s", this.dbfile.getPath());
-				this.dbfile = null;
-			}
+                    try
+                    {
+                            if(!this.parent.mkdirs())
+                                    throw new IOException("Failed to create file");
+                    }
+                    catch(IOException ex)
+                    {
+                            this.log("Failed to find (and create) parent directory at %s", this.parent.getPath());
+                            this.parent = null;
+                    }
 		}
 	}
 
@@ -73,12 +85,12 @@ public class SQLite extends Database
 	{
 		try
 		{
-			Class.forName("org.sqlite.JDBC");
-			return this.dbfile != null && this.dbfile.exists();
+			Class.forName("org.h2.Driver");
+			return this.parent != null && this.parent.exists();
 		}
 		catch(ClassNotFoundException ex)
 		{
-			this.log("SQLite library not found!");
+			this.log("H2 library not found!");
 			return false;
 		}
 	}
@@ -90,11 +102,12 @@ public class SQLite extends Database
 		{
 			try
 			{
-				this.con = DriverManager.getConnection("jdbc:sqlite:" + this.dbfile.getAbsolutePath());
+				this.con = DriverManager.getConnection(String.format("jdbc:h2:%s%s%s;MODE=MySQL;IGNORECASE=TRUE",this.parent,File.separator,this.dbname), this.user, this.pass);
 			}
 			catch (SQLException ex)
 			{
-				this.log("Failed to establish a SQLite connection, SQLException: ", ex.getMessage());
+                                ex.printStackTrace();
+				this.log("Failed to establish a H2 connection, SQLException: ", ex.getMessage());
 			}
 		}
 		return this.con != null;
@@ -108,8 +121,7 @@ public class SQLite extends Database
 		{
 			DatabaseMetaData meta = this.con.getMetaData();
 			ResultSet result = meta.getTables(null, null, name, null);
-			boolean ret = result.next();
-                        return ret;
+			return result.next();
 		}
 		catch(SQLException ex)
 		{
@@ -124,7 +136,7 @@ public class SQLite extends Database
 	public void createTable(TableBuilder builder)
 	{
 		if(!this.isReady()) return;
-                
+
 		StringBuilder table = new StringBuilder("CREATE TABLE `").append(builder.getTableName()).append("`(");
 		for(Map.Entry<String, PropertyList> property : builder.getColumns().entrySet())
 		{
@@ -138,17 +150,18 @@ public class SQLite extends Database
                 for(Map.Entry<String, Reference> reference : builder.getReferences().entrySet())
                 {
                     if(reference.getValue() != null)
-                    table.append(String.format("FOREIGN KEY %s REFERENCES `%s`(%s)", reference.getKey(), reference.getValue().getTable(), reference.getValue().getColumn()));
+                    table.append(String.format("FOREIGN KEY %s REFERENCES `%s`(%s),", reference.getKey(), reference.getValue().getTable(), reference.getValue().getColumn()));
                 }
                 
-		// Delete the last comma
+                // Delete the last comma
 		if(builder.getColumns().size() > 0) {
 			table.deleteCharAt(table.length() - 1);
 		}
+
 		String query = table.append(");").toString();
-                
+
 		this.executeQuery(query);
-        }
+	}
 
 	@Override
 	public ResultSet executeQuery(String query)
@@ -165,8 +178,9 @@ public class SQLite extends Database
 			case INSERT:
 			case UPDATE:
 			case DELETE:
+				stmt.executeUpdate(query);
+				break;
 			case CREATE:
-                                stmt.executeUpdate(query);
 				break;
 			default:
 				result = stmt.executeQuery(query);
@@ -192,16 +206,15 @@ public class SQLite extends Database
 		}
 		catch(SQLException ex)
 		{
-                        ex.printStackTrace();
 			this.log("An exception has occurred while preparing query '%s': %s", query, ex.getMessage());
 		}
 		return stmt;
 	}
 
-	private SQLite.Type getQueryType(String query)
+	private H2.Type getQueryType(String query)
 	{
 		String typename = query.split(" ")[0];
-		return Type.getType(typename);
+		return H2.Type.getType(typename);
 	}
 
 }

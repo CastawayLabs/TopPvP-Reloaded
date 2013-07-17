@@ -18,16 +18,14 @@
  */
 package org.CastawayDevelopment.TopPvP;
 
+import org.CastawayDevelopment.TopPvP.Listeners.TopPVPPlayerJoinListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
-import org.CastawayDevelopment.TopPvP.Listeners.TopPVPKillDeathListener;
-import org.CastawayDevelopment.TopPvP.Listeners.TopPVPPlayerJoinListener;
-import org.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-
+import org.CastawayDevelopment.TopPvP.Listeners.TopPVPKillDeathListener;
+import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
+import org.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TopPvP extends JavaPlugin {

@@ -18,20 +18,15 @@
  */
 package org.CastawayDevelopment.TopPvP.Managers;
 
-import lib.PatPeter.SQLibrary.DatabaseHandler;
-import lib.PatPeter.SQLibrary.MySQL;
-import lib.PatPeter.SQLibrary.SQLite;
-import org.bukkit.entity.Player;
-
-import org.CastawayDevelopment.TopPvP.TopPvP;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.CastawayDevelopment.TopPvP.TopPvP;
+import org.bukkit.entity.Player;
 
 public class DatabaseManager {
 	private TopPvP plugin;
 
-	private DatabaseHandler databaseHandler;
+	//private DatabaseHandler databaseHandler;
 
 	public static String tableName = "toppvp";
 
@@ -45,7 +40,7 @@ public class DatabaseManager {
 			"ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
 	public ResultSet getPlayer (Player player) {
-		ResultSet resultSet = databaseHandler.query("SELECT * FROM "+tableName+" WHERE username='"+player.getName()+"'");
+		ResultSet resultSet = null;//databaseHandler.query("SELECT * FROM "+tableName+" WHERE username='"+player.getName()+"'");
 
 		try {
 			if (resultSet.first()) {
@@ -65,11 +60,11 @@ public class DatabaseManager {
 	}
 
 	public void updateQuery (String query) {
-		databaseHandler.query(query);
+		//databaseHandler.query(query);
 	}
 
 	public void connect() {
-		if (!databaseHandler.checkConnection()) {
+		/*if (!databaseHandler.checkConnection()) {
 			databaseHandler.open();
 		}
 
@@ -79,11 +74,11 @@ public class DatabaseManager {
 			databaseHandler.createTable(createTableQuery);
 		} else {
 			plugin.getLogger().info("Table exists.");
-		}
+		}*/
 	}
 
 	public DatabaseManager (TopPvP plugin) {
-		this.plugin = plugin;
+		/*this.plugin = plugin;
 
 		// TODO database type
 		// TODO database connection details..
@@ -103,6 +98,6 @@ public class DatabaseManager {
 		plugin.getLogger().info("Using "+type);
 
 		TopPvP.log("Connecting to DB");
-		this.connect();
+		this.connect();*/
 	}
 }
