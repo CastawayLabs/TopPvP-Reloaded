@@ -23,21 +23,33 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-public class TopPVPPlayerJoinListener implements Listener {
-	private Player player;
-	private TopPvP plugin;
+public class PlayerListener implements Listener
+{
 
-	public TopPVPPlayerJoinListener (TopPvP plugin) {
-		this.plugin = plugin;
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-	}
+    private TopPvP plugin;
 
-	@EventHandler
-	public void onPlayerJoin (PlayerJoinEvent event){
-		player = event.getPlayer();
+    public PlayerListener(TopPvP plugin)
+    {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
 
-		plugin.getScoreboardManager().update();
-		//plugin.getScoreboardManager().addPlayer(player);
-	}
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event)
+    {
+        Player player = event.getPlayer();
+
+        //plugin.getScoreboardManager().update();
+        plugin.getPlayerManager().onPlayerJoin(player);
+        //plugin.getScoreboardManager().addPlayer(player);
+    }
+    
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event)
+    {
+        Player player = event.getPlayer();
+        plugin.getPlayerManager().onPlayerQuit(player);
+    }
 }

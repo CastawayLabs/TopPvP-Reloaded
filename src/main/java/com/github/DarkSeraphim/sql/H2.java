@@ -25,7 +25,7 @@ public class H2 extends Database
 
 		private final String sql;
 
-		private Type(String sql)
+		private Type(final String sql)
 		{
 			this.sql = sql;
 		}
@@ -35,48 +35,44 @@ public class H2 extends Database
 			return this.sql;
 		}
 
-		public static H2.Type getType(String keyword)
+		public static H2.Type getType(final String keyword)
 		{
-			for(H2.Type t : values())
-			{
+			for(final H2.Type t : Type.values())
 				if(t.getSQL().equalsIgnoreCase(keyword)) return t;
-			}
 			return H2.Type.NONE;
 		}
 	}
 
 	private File parent;
-        
-        private final String dbname;
-        
-        private final String user;
-        
-        private final String pass;
 
-        public H2(Logger log, File parent, String dbname, String username)
-        {
-            this(log, parent, dbname, username, "");
-        }
-        
-	public H2(Logger log, File parent, String dbname, String username, String password)
+	private final String dbname;
+
+	private final String user;
+
+	private final String pass;
+
+	public H2(final Logger log, final File parent, final String dbname, final String username)
+	{
+		this(log, parent, dbname, username, "");
+	}
+
+	public H2(final Logger log, final File parent, final String dbname, final String username, final String password)
 	{
 		super(log);
 		this.parent = parent;
-                this.dbname = dbname;
-                this.user = username;
-                this.pass = password;
+		this.dbname = dbname;
+		this.user = username;
+		this.pass = password;
 		if(!this.parent.exists())
+			try
 		{
-                    try
-                    {
-                            if(!this.parent.mkdirs())
-                                    throw new IOException("Failed to create file");
-                    }
-                    catch(IOException ex)
-                    {
-                            this.log("Failed to find (and create) parent directory at %s", this.parent.getPath());
-                            this.parent = null;
-                    }
+				if(!this.parent.mkdirs())
+					throw new IOException("Failed to create file");
+		}
+		catch(final IOException ex)
+		{
+			this.log("Failed to find (and create) parent directory at %s", this.parent.getPath());
+			this.parent = null;
 		}
 	}
 
@@ -88,8 +84,9 @@ public class H2 extends Database
 			Class.forName("org.h2.Driver");
 			return this.parent != null && this.parent.exists();
 		}
-		catch(ClassNotFoundException ex)
+		catch(final ClassNotFoundException ex)
 		{
+			ex.printStackTrace();
 			this.log("H2 library not found!");
 			return false;
 		}
@@ -99,31 +96,29 @@ public class H2 extends Database
 	public boolean connect()
 	{
 		if(this.initialize())
-		{
 			try
-			{
+		{
 				this.con = DriverManager.getConnection(String.format("jdbc:h2:%s%s%s;MODE=MySQL;IGNORECASE=TRUE",this.parent,File.separator,this.dbname), this.user, this.pass);
-			}
-			catch (SQLException ex)
-			{
-                                ex.printStackTrace();
-				this.log("Failed to establish a H2 connection, SQLException: ", ex.getMessage());
-			}
+		}
+		catch (final SQLException ex)
+		{
+			ex.printStackTrace();
+			this.log("Failed to establish a H2 connection, SQLException: ", ex.getMessage());
 		}
 		return this.con != null;
 	}
 
 	@Override
-	public boolean checkTable(String name)
+	public boolean checkTable(final String name)
 	{
 		if(!this.isReady()) return false;
 		try
 		{
-			DatabaseMetaData meta = this.con.getMetaData();
-			ResultSet result = meta.getTables(null, null, name, null);
+			final DatabaseMetaData meta = this.con.getMetaData();
+			final ResultSet result = meta.getTables(null, null, name, null);
 			return result.next();
 		}
-		catch(SQLException ex)
+		catch(final SQLException ex)
 		{
 			// Swallow the exception, as it is a conditional
 			//log("Table %s does not exist", name);
@@ -133,38 +128,33 @@ public class H2 extends Database
 	}
 
 	@Override
-	public void createTable(TableBuilder builder)
+	public void createTable(final TableBuilder builder)
 	{
 		if(!this.isReady()) return;
 
-		StringBuilder table = new StringBuilder("CREATE TABLE `").append(builder.getTableName()).append("`(");
-		for(Map.Entry<String, PropertyList> property : builder.getColumns().entrySet())
-		{
+		final StringBuilder table = new StringBuilder("CREATE TABLE `").append(builder.getTableName()).append("`(");
+		for(final Map.Entry<String, PropertyList> property : builder.getColumns().entrySet())
 			table.append(property.getKey()).append(" ").append(property.getValue().getProperties()).append(",");
-		}
-                
-                String pkey = builder.getPrimaryKey();
-                if(pkey != null)
-                    table.append(String.format("PRIMARY KEY(%s),", pkey));
 
-                for(Map.Entry<String, Reference> reference : builder.getReferences().entrySet())
-                {
-                    if(reference.getValue() != null)
-                    table.append(String.format("FOREIGN KEY %s REFERENCES `%s`(%s),", reference.getKey(), reference.getValue().getTable(), reference.getValue().getColumn()));
-                }
-                
-                // Delete the last comma
-		if(builder.getColumns().size() > 0) {
+		final String pkey = builder.getPrimaryKey();
+		if(pkey != null)
+			table.append(String.format("PRIMARY KEY(%s),", pkey));
+
+		for(final Map.Entry<String, Reference> reference : builder.getReferences().entrySet())
+			if(reference.getValue() != null)
+				table.append(String.format("FOREIGN KEY %s REFERENCES `%s`(%s),", reference.getKey(), reference.getValue().getTable(), reference.getValue().getColumn()));
+
+		// Delete the last comma
+		if(builder.getColumns().size() > 0)
 			table.deleteCharAt(table.length() - 1);
-		}
 
-		String query = table.append(");").toString();
+		final String query = table.append(");").toString();
 
 		this.executeQuery(query);
 	}
 
 	@Override
-	public ResultSet executeQuery(String query)
+	public ResultSet executeQuery(final String query)
 	{
 		if(!this.isReady()) return null;
 
@@ -172,7 +162,7 @@ public class H2 extends Database
 
 		try
 		{
-			Statement stmt = this.con.createStatement();
+			final Statement stmt = this.con.createStatement();
 			switch(this.getQueryType(query))
 			{
 			case INSERT:
@@ -187,7 +177,7 @@ public class H2 extends Database
 				break;
 			}
 		}
-		catch(SQLException ex)
+		catch(final SQLException ex)
 		{
 			this.log("An exception has occurred while executing query '%s': %s", query, ex.getMessage());
 		}
@@ -196,7 +186,7 @@ public class H2 extends Database
 	}
 
 	@Override
-	public PreparedStatement prepare(String query)
+	public PreparedStatement prepare(final String query)
 	{
 		if(!this.isReady()) return null;
 		PreparedStatement stmt = null;
@@ -204,16 +194,16 @@ public class H2 extends Database
 		{
 			stmt = this.con.prepareStatement(query);
 		}
-		catch(SQLException ex)
+		catch(final SQLException ex)
 		{
 			this.log("An exception has occurred while preparing query '%s': %s", query, ex.getMessage());
 		}
 		return stmt;
 	}
 
-	private H2.Type getQueryType(String query)
+	private H2.Type getQueryType(final String query)
 	{
-		String typename = query.split(" ")[0];
+		final String typename = query.split(" ")[0];
 		return H2.Type.getType(typename);
 	}
 

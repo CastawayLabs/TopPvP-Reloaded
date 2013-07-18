@@ -18,86 +18,149 @@
  */
 package org.CastawayDevelopment.TopPvP.Managers;
 
+import com.github.DarkSeraphim.sql.Database;
+import com.github.DarkSeraphim.sql.MySQL;
+import com.github.DarkSeraphim.sql.SQLite;
+import com.github.DarkSeraphim.sql.TableBuilder;
+import java.io.File;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.CastawayDevelopment.TopPvP.TopPvP;
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 
-public class DatabaseManager {
-	private TopPvP plugin;
+public class DatabaseManager
+{
 
-	//private DatabaseHandler databaseHandler;
+    private TopPvP plugin;
+    private Database db;
+    
+    private final String tableName = "toppvp";
+    
+    private PreparedStatement getplayer;
+    private final Object getplayer_lock = new Object();
+    private PreparedStatement createplayer;
+    private final Object createplayer_lock = new Object();
+    private PreparedStatement updateplayer;
+    private final Object updateplayer_lock = new Object();
+    private PreparedStatement deleteplayer;
+    private final Object deleteplayer_lock = new Object();
 
-	public static String tableName = "toppvp";
+    public Map<String, Object> getPlayerData(Player player)
+    {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("id", null);
+        data.put("kills", null);
+        data.put("deaths", null);
+        
+        if(!Database.synchronizedExecuteQuery(data, getplayer, getplayer_lock, player.getName()))
+        {
+            createPlayer(player);
+            Database.synchronizedExecuteQuery(data, getplayer, getplayer_lock, player.getName());
+        }
 
-	private static String createTableQuery = "CREATE TABLE IF NOT EXISTS "+tableName+" (" +
-			"id int(255) NOT NULL AUTO_INCREMENT," +
-			"username varchar(32) NOT NULL," +
-			"kills int(255) NOT NULL DEFAULT '0'," +
-			"deaths int(255) NOT NULL DEFAULT '0'," +
-			"UNIQUE KEY `username` (`username`)," +
-			"PRIMARY KEY `id` (`id`))" +
-			"ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+        return data;
+    }
 
-	public ResultSet getPlayer (Player player) {
-		ResultSet resultSet = null;//databaseHandler.query("SELECT * FROM "+tableName+" WHERE username='"+player.getName()+"'");
+    public void createPlayer(Player player)
+    {  
+        Database.synchronizedExecuteUpdate(createplayer, createplayer_lock, player.getName());
+    }
 
-		try {
-			if (resultSet.first()) {
-				plugin.getLogger().info("Got username "+resultSet.getString("username"));
-			} else {
-				// No player by the username exists
-			}
-		} catch (SQLException exception) {
+    // Might convert to a own Player object for cleaner use
+    public void updatePlayer(PlayerClass player)
+    {
+        final int kills = player.getKills().getValue();
+        final int deaths = player.getDeaths().getValue();
+        final int id = player.getId();
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                Database.synchronizedExecuteUpdate(updateplayer, updateplayer_lock, kills, deaths, id);
+            }
+        }.runTaskAsynchronously(plugin);
+    }
+    
+    public void deletePlayer(int id)
+    {
+        Database.synchronizedExecuteUpdate(deleteplayer, deleteplayer_lock, id);
+    }
 
-		}
+    private void connect() throws SQLException
+    {
+        if (!this.db.isReady())
+        {
+            if (!this.db.connect())
+            {
+                throw new SQLException("Could not connect to the database!");
+            }
+        }
 
-		return null;
-	}
+        boolean exists = this.db.checkTable(tableName);
+        if (!exists)
+        {
+            // Create it.
+            TableBuilder toppvp = new TableBuilder("toppvp");
+            toppvp.addColumn("id", "int(255)").addProperty("NOT NULL").addProperty("AUTO_INCREMENT");
+            toppvp.addColumn("username", "varchar(16)").addProperty("NOT NULL").addProperty("UNIQUE");
+            toppvp.addColumn("kills", "int(24)").addProperty("NOT NULL").addProperty("DEFAULT 0");
+            toppvp.addColumn("deaths", "int(24)").addProperty("NOT NULL").addProperty("DEFAULT 0");
+            toppvp.setPrimaryKey("id");
+            toppvp.createTable(this.db);
+        }
+        else
+        {
+            plugin.getLogger().info("Table exists.");
+        }
+    }
+    
+    private void prepare()
+    {
+        if(this.db.isReady())
+        {
+            this.createplayer = this.db.prepare("INSERT INTO toppvp(`username`) VALUES(?)");
+            this.getplayer = this.db.prepare("SELECT * FROM toppvp WHERE id = ?");
+            this.updateplayer = this.db.prepare("UPDATE toppvp SET kills = ?, deaths = ? WHERE id = ?");
+            this.deleteplayer = this.db.prepare("DELETE FROM toppvp WHERE id = ?");
+        }
+    }
 
-	public void createPlayer (Player player) {
-		updateQuery("INSERT INTO "+tableName+" (username, kills, deaths) VALUES ('"+player.getName()+"', 0, 0)");
-	}
+    public DatabaseManager(TopPvP plugin)
+    {
 
-	public void updateQuery (String query) {
-		//databaseHandler.query(query);
-	}
-
-	public void connect() {
-		/*if (!databaseHandler.checkConnection()) {
-			databaseHandler.open();
-		}
-
-		boolean exists = databaseHandler.checkTable(tableName);
-		if (!exists) {
-			// Create it.
-			databaseHandler.createTable(createTableQuery);
-		} else {
-			plugin.getLogger().info("Table exists.");
-		}*/
-	}
-
-	public DatabaseManager (TopPvP plugin) {
-		/*this.plugin = plugin;
-
-		// TODO database type
-		// TODO database connection details..
-		String type = "mysql"; // mysql | sqlite | h2
-		if (type.equals("mysql")) {
-			databaseHandler = new MySQL(plugin.getLogger(), "", "localhost", "3306", "minecraft", "root", "password");
-		} else if (type.equals("sqlite")) {
-			databaseHandler = new SQLite(plugin.getLogger(), "", "minecraft", plugin.getDataFolder().getAbsolutePath());
-		} else if (type.equals("h2")) {
-			// init for h2
-			throw new RuntimeException("Unsupported database type "+type);
-		} else {
-			throw new RuntimeException("Unknown database type "+type);
-		}
-
-		// if no exception thrown, announce what db type plugin is using
-		plugin.getLogger().info("Using "+type);
-
-		TopPvP.log("Connecting to DB");
-		this.connect();*/
-	}
+        this.plugin = plugin;
+        if (plugin.getConfig().getBoolean("mysql.enabled", false))
+        {
+            String host = plugin.getConfig().getString("mysql.host", "localhost");
+            int port = plugin.getConfig().getInt("mysql.port", 3306);
+            String database = plugin.getConfig().getString("mysql.database", "minecraft");
+            String user = plugin.getConfig().getString("mysql.username", "root");
+            String pass = plugin.getConfig().getString("mysql.password", "");
+            this.db = new MySQL(plugin.getLogger(), host, port, database, user, pass);
+        }
+        else
+        {
+            this.db = new SQLite(plugin.getLogger(), new File(plugin.getDataFolder(), "TopPvP.db"));
+        }
+        plugin.getLogger().info("Using " + (this.db instanceof MySQL ? "MySQL" : "SQLite"));
+        TopPvP.log("Connecting to DB");
+        try
+        {
+            this.connect();
+        }
+        catch(SQLException ex)
+        {
+            ex.printStackTrace();
+            Bukkit.getPluginManager().disablePlugin(plugin);
+            return;
+        }
+        prepare();
+    }
 }

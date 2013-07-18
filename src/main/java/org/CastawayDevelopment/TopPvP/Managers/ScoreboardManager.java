@@ -48,7 +48,7 @@ public class ScoreboardManager {
 	}
 
 	public void update() {
-		TopPvP.log("Hello");
+		/*TopPvP.log("Hello");
 		Player players[] = plugin.getServer().getOnlinePlayers();
 		for (Player player : players) {
 			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
@@ -70,21 +70,21 @@ public class ScoreboardManager {
 				//if (!deaths.hasPlayerAdded(player)) {
 				//	deaths.showToPlayer(player, true);
 				//}
-			} catch (SQLException exception) {
+			/*} catch (SQLException exception) {
 				plugin.getLogger().warning("Could not fetch player scores");
 			}
-		}
+		}*/
 	}
 
 	public void addPlayer (Player player) {
-		try {
+		/*try {
 			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
                         throw new SQLException();
 			//kills.setItem(player.getName(), dbPlayer.getInt("kills"));
 			//deaths.setItem(player.getName(), (Integer)dbPlayer.get("deaths"));
 		} catch (SQLException exception) {
 			plugin.getLogger().warning("Could not create player!");
-		}
+		}*/
 	}
 
 }
