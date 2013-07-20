@@ -18,73 +18,94 @@
  */
 package org.CastawayDevelopment.TopPvP.Managers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.CastawayDevelopment.TopPvP.TopPvP;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 
-public class ScoreboardManager {
-	private TopPvP plugin;
-	//private ScoreboardAPI api;
-	//private Scoreboard kills;
-	//private Scoreboard deaths;
+public class ScoreboardManager
+{
 
-	public ScoreboardManager (TopPvP plugin) {
-		this.plugin = plugin;
-		createScoreboards();
-	}
+    private TopPvP plugin;
+    //private ScoreboardAPI api;
+    //private Scoreboard kills;
+    //private Scoreboard deaths;
 
-	public void createScoreboards() {
-		/*api = new ScoreboardAPI();
-		api.onEnable();
-
-		kills = api.createScoreboard("toppvp_kills", 0);
-		kills.setType(Scoreboard.Type.SIDEBAR);
-		kills.setScoreboardName("Kills");*/
-
-		//deaths = api.createScoreboard("toppvp_deaths", 1);
-		//deaths.setType(Scoreboard.Type.SIDEBAR);
-		//deaths.setScoreboardName("Deaths");
-	}
-
-	public void update() {
-		/*TopPvP.log("Hello");
-		Player players[] = plugin.getServer().getOnlinePlayers();
-		for (Player player : players) {
-			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
-			if (dbPlayer == null) {
-				// Not found?
-				TopPvP.log("NULL");
-				continue;
-			}
-
-			try {
-				int killsInt = dbPlayer.getInt("kills");
-				int deathsInt = dbPlayer.getInt("deaths");
-
-				/*kills.setItem(player.getName(), killsInt);
-				//deaths.setItem(player.getName(), deathsInt);
-				if (!kills.hasPlayerAdded(player)) {
-					kills.showToPlayer(player, true);
-				}*/
-				//if (!deaths.hasPlayerAdded(player)) {
-				//	deaths.showToPlayer(player, true);
-				//}
-			/*} catch (SQLException exception) {
-				plugin.getLogger().warning("Could not fetch player scores");
-			}
-		}*/
-	}
-
-	public void addPlayer (Player player) {
-		/*try {
-			ResultSet dbPlayer = plugin.getDatabaseManager().getPlayer(player);
-                        throw new SQLException();
-			//kills.setItem(player.getName(), dbPlayer.getInt("kills"));
-			//deaths.setItem(player.getName(), (Integer)dbPlayer.get("deaths"));
-		} catch (SQLException exception) {
-			plugin.getLogger().warning("Could not create player!");
-		}*/
-	}
-
+    public ScoreboardManager(TopPvP plugin)
+    {
+        this.plugin = plugin;
+    }
+    
+    public void onPlayerJoin(final PlayerClass player)
+    {
+        Scoreboard sb = player.getScoreboard();
+        if(sb == Bukkit.getScoreboardManager().getMainScoreboard())
+        {
+            sb = Bukkit.getScoreboardManager().getNewScoreboard();
+        }
+        
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                while(!player.isValid())
+                {
+                    try
+                    {
+                        Thread.sleep(1000);
+                    }
+                    catch(InterruptedException ex)
+                    {
+                        // Swallow the exception
+                    }
+                }
+                
+                new BukkitRunnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ScoreboardManager.this.registerPlayer(player);
+                    }
+                }.runTask(ScoreboardManager.this.plugin);
+            }
+        }.runTaskAsynchronously(this.plugin);
+    }
+    
+    // Do not call this manually please, let the onPlayerJoin(Player) do it for you :3
+    private void registerPlayer(PlayerClass player)
+    {
+        Scoreboard sb = player.getScoreboard();
+        Objective stats = sb.registerNewObjective("stats", "dummy");
+        stats.setDisplayName(ChatColor.GOLD+""+ChatColor.BOLD+""+ChatColor.ITALIC+"Stats");
+        Score kills = stats.getScore(getScore("Kills"));
+        Score deaths = stats.getScore(getScore("Deaths"));
+        kills.setScore(player.getKills().getValue());
+        deaths.setScore(player.getDeaths().getValue());
+        
+        // This is basically the update method (iirc)
+        stats.setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+    
+    public void updatePlayer(PlayerClass player)
+    {
+        Scoreboard sb = player.getScoreboard();
+        Objective stats = sb.getObjective("stats");
+        Score kills = stats.getScore(getScore("Kills"));
+        Score deaths = stats.getScore(getScore("Deaths"));
+        kills.setScore(player.getKills().getValue());
+        deaths.setScore(player.getDeaths().getValue());
+    }
+    
+    public static OfflinePlayer getScore(String name)
+    {
+        return Bukkit.getOfflinePlayer(name);
+    }
 }

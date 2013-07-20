@@ -19,25 +19,21 @@
 //Test
 package org.CastawayDevelopment.TopPvP.Listeners;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import org.CastawayDevelopment.TopPvP.Managers.PlayerClass;
+import org.CastawayDevelopment.TopPvP.Managers.PlayerManager;
 import org.CastawayDevelopment.TopPvP.TopPvP;
-import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
-import com.avaje.ebean.annotation.Sql;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-import org.CastawayDevelopment.TopPvP.Managers.PlayerClass;
-import org.CastawayDevelopment.TopPvP.Managers.PlayerManager;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Skeleton;
 
 public class EntityListener implements Listener
 {
@@ -83,13 +79,29 @@ public class EntityListener implements Listener
                     PlayerClass pcKiller = manager.getPlayer((Player) killer);
                     PlayerClass pcVictim = manager.getPlayer((Player) victim);
                     
-                    pcKiller.getKills().increment();
-                    pcVictim.getDeaths().increment();
                     
-                    pcKiller.update();
-                    pcVictim.update();
+                    LinkedHashSet<String> lastKills = pcKiller.getLastKills();
+                    if(!lastKills.contains(pcVictim.getName()))
+                    {
+                        pcKiller.getKills().increment();
+                        pcVictim.getDeaths().increment();
 
-                    plugin.getScoreboardManager().update();
+                        pcKiller.update();
+                        pcVictim.update();
+                        
+                        lastKills.add(pcVictim.getName());
+                        if(lastKills.size() > 3)
+                        {
+                            Iterator<String> it = lastKills.iterator();
+                            if(it.hasNext())
+                            {
+                                it.next();
+                                it.remove();
+                            }
+                        }
+                        // It holds now that the 'queue' does not contain
+                        // more than three elements
+                    }
                 }
                 else if (killer instanceof Monster || (killer instanceof Projectile && ((Projectile)killer).getShooter() instanceof Skeleton))
                 {

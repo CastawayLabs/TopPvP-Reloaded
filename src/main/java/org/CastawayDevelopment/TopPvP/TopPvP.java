@@ -27,6 +27,8 @@ import org.CastawayDevelopment.TopPvP.Listeners.EntityListener;
 import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
 import org.CastawayDevelopment.TopPvP.Managers.PlayerManager;
 import org.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TopPvP extends JavaPlugin
@@ -130,6 +132,10 @@ public class TopPvP extends JavaPlugin
         // Hooks
         EntityListener deathListener = new EntityListener(this);
         PlayerListener joinListener = new PlayerListener(this);
+        
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(joinListener, this);
+        pm.registerEvents(deathListener, this);
 
         // Database
         databaseManager = new DatabaseManager(this);
@@ -146,5 +152,7 @@ public class TopPvP extends JavaPlugin
     public void onDisable()
     {
         TopPvP.active = null;
+        TopPvP.databaseManager = null;
+        TopPvP.scoreboardManager = null;
     }
 }

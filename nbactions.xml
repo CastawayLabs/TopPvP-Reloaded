@@ -4,7 +4,7 @@
             <actionName>build</actionName>
             <goals>
                 <goal>install</goal>
-                <goal>-U</goal>
+                
             </goals>
         </action>
     </actions>

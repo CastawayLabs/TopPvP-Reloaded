@@ -1,5 +1,6 @@
 package org.CastawayDevelopment.TopPvP.Managers;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import org.CastawayDevelopment.TopPvP.TopPvP;
 import org.bukkit.entity.Player;
@@ -47,6 +48,8 @@ public class PlayerClass extends AbstractPlayerClass
     
     private Incrementable deaths;
     
+    private final LinkedHashSet<String> lastKills = new LinkedHashSet<String>();
+    
     protected PlayerClass(Player player)
     {
         super(player);
@@ -71,9 +74,15 @@ public class PlayerClass extends AbstractPlayerClass
         return this.deaths;
     }
     
+    public LinkedHashSet<String> getLastKills()
+    {
+        return this.lastKills;
+    }
+    
     public void update()
     {
         TopPvP.getDatabaseManager().updatePlayer(this);
+        TopPvP.getScoreboardManager().updatePlayer(this);
     }
     
 }

@@ -1,6 +1,7 @@
 package org.CastawayDevelopment.TopPvP.Managers;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
 
 /**
  * Do not use any of the Player methods when the PlayerQuitEvent has been processed
@@ -26,12 +27,22 @@ public abstract class AbstractPlayerClass
     
     public boolean isValid()
     {
-        return this.valid;
+        return this.valid && this.player.isValid();
     }
     
     public String getName()
     {
         return this.player.getName();
+    }
+    
+    public Scoreboard getScoreboard()
+    {
+        return this.player.getScoreboard();
+    }
+    
+    public void setScoreboard(Scoreboard scoreboard)    
+    {
+        this.player.setScoreboard(scoreboard);
     }
     
 }
