@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,8 +87,39 @@ public abstract class Database
      * @return true when all columns found as Map keys are found and inserted
      * into the map.
      */
-    public static boolean synchronizedExecuteQuery(final Map<String, Object> results, final PreparedStatement stmt, final Object lock, final Object... params)
+    public static boolean synchronizedExecuteQuery(Map<String, Object> results, final PreparedStatement stmt, final Object lock, final Object... params)
     {
+        final List<Map<String, Object>> resultsList = new ArrayList<Map<String, Object>>();
+        resultsList.add(results);
+        
+        boolean ret = Database.synchronizedExecuteQuery(resultsList, stmt, lock, params);
+        results = resultsList.get(0);
+        return ret;
+    }
+    
+    /**
+     * Executes the query synchronized and inserts the values in the given Map
+     *
+     * @param results The Map<String, Object> of which the keys represent the
+     * requested columns
+     * @param stmt The PreparedStatement to execute
+     * @param lock The lock for the synchronization
+     * @param params The parameters for the PreparedStatement
+     * @return true when all columns found as Map keys are found and inserted
+     * into the map.
+     */
+    public static boolean synchronizedExecuteQuery(final List<Map<String, Object>> results, final PreparedStatement stmt, final Object lock, final Object... params)
+    {
+        if(results.size() <= 0) return false;
+        
+        Map<String, Object> template = new HashMap<String,Object>();
+        for(String key : results.get(0).keySet())
+        {
+            template.put(key, null);
+        }
+        
+        results.clear();
+        
         ResultSet rs = null;
 
         boolean success = false;
@@ -112,14 +146,16 @@ public abstract class Database
 
             try
             {
-                if (rs.next())
+                while(rs.next())
                 {
-                    for (final String column : results.keySet())
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    for (final String column : template.keySet())
                     {
-                        results.put(column, rs.getObject(column));
+                        result.put(column, rs.getObject(column));
                     }
-                    success = true;
+                    results.add(result);
                 }
+                success = results.size() > 0;
             }
             catch (final SQLException ex)
             {

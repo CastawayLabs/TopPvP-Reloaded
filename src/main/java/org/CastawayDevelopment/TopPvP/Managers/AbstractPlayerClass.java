@@ -35,6 +35,11 @@ public abstract class AbstractPlayerClass
         return this.player.getName();
     }
     
+    public void sendMessage(String message)
+    {
+        this.player.sendMessage(message);
+    }
+    
     public Scoreboard getScoreboard()
     {
         return this.player.getScoreboard();

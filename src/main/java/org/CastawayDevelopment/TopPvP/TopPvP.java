@@ -18,16 +18,19 @@
  */
 package org.CastawayDevelopment.TopPvP;
 
-import org.CastawayDevelopment.TopPvP.Listeners.PlayerListener;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-import org.CastawayDevelopment.TopPvP.Listeners.EntityListener;
-import org.CastawayDevelopment.TopPvP.Managers.DatabaseManager;
-import org.CastawayDevelopment.TopPvP.Managers.PlayerManager;
-import org.CastawayDevelopment.TopPvP.Managers.ScoreboardManager;
+import org.CastawayDevelopment.TopPvP.Commands.*;
+import org.CastawayDevelopment.TopPvP.Listeners.*;
+import org.CastawayDevelopment.TopPvP.Managers.*;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,6 +52,13 @@ public class TopPvP extends JavaPlugin
     private static DatabaseManager databaseManager;
     private static ScoreboardManager scoreboardManager;
     private static PlayerManager playerManager;
+    
+    /*
+     * Commands
+     */
+    private BountyCommand bountyCmd;
+    private SetCommand setCmd;
+    private ResetCommand resetCmd;
 
     /**
      * Get this central plugin name.
@@ -142,6 +152,15 @@ public class TopPvP extends JavaPlugin
         
         // Players
         playerManager = new PlayerManager(this);
+        
+        initCommands();
+    }
+    
+    private void initCommands()
+    {
+        this.bountyCmd = new BountyCommand(this);
+        this.setCmd = new SetCommand(this);
+        this.resetCmd = new ResetCommand(this);
     }
 
     /**
@@ -154,5 +173,70 @@ public class TopPvP extends JavaPlugin
         TopPvP.active = null;
         TopPvP.databaseManager = null;
         TopPvP.scoreboardManager = null;
+    }
+    
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmnd, String label, String[] args)
+    {
+        Sub sub;
+        String cmdName;
+        boolean alias = true;
+        if(!label.equalsIgnoreCase("toppvp"))
+            cmdName = label;
+        else
+            if(args.length < 1)
+                cmdName = "help";
+            else
+            {
+                alias = false;
+                cmdName = args[0];
+                args = Arrays.copyOfRange(args, 1, args.length);
+            }
+            
+        try
+        {
+            sub = Sub.valueOf(cmdName);
+        }
+        catch(IllegalArgumentException ex)
+        {
+            return false;
+        }
+        
+        TopPvPCommand cmd;
+        
+        switch(sub)
+        {
+            case BOUNTY:
+                cmd = this.bountyCmd;
+                break;
+            case SET:
+                cmd = this.setCmd;
+                break;
+            case RESET:
+                cmd = this.resetCmd;
+                break;
+            default:
+                sender.sendMessage(ChatColor.DARK_RED+"Command not found");
+                return true;
+        }
+        
+        if(cmd.needsPlayer() && sender instanceof Player == false)
+        {
+            sender.sendMessage(ChatColor.DARK_RED+"This command is only for ingame players");
+        }
+        else
+        {
+            cmd.execute(sender, args, alias);
+        }
+        
+        return true;
+    }
+    
+    private enum Sub
+    {
+        TOPPVP,
+        BOUNTY,
+        SET,
+        RESET
     }
 }

@@ -1,0 +1,10 @@
+name: TopPvP
+version: {$project.version}
+website: http://castawaydev.org
+main: org.CastawayDevelopment.TopPvP.TopPvP
+
+commands:
+  toppvp:
+    description: default command for TopPvP
+    usage: /<command> help for help
+    aliases: [bounty]

@@ -24,14 +24,17 @@ import com.github.DarkSeraphim.sql.SQLite;
 import com.github.DarkSeraphim.sql.TableBuilder;
 import java.io.File;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import org.CastawayDevelopment.TopPvP.TopPvP;
-import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class DatabaseManager
@@ -50,6 +53,10 @@ public class DatabaseManager
     private final Object updateplayer_lock = new Object();
     private PreparedStatement deleteplayer;
     private final Object deleteplayer_lock = new Object();
+    private PreparedStatement resetAll;
+    private final Object resetAll_lock = new Object();
+    private PreparedStatement fetchAllBounty;
+    private final Object fetchAllBounty_lock = new Object();
 
     public Map<String, Object> getPlayerData(Player player)
     {
@@ -57,6 +64,9 @@ public class DatabaseManager
         data.put("id", null);
         data.put("kills", null);
         data.put("deaths", null);
+        data.put("lastkillers", null);
+        data.put("bounty", null);
+        data.put("bountyissuer", null);
         
         if(!Database.synchronizedExecuteQuery(data, getplayer, getplayer_lock, player.getName()))
         {
@@ -64,6 +74,11 @@ public class DatabaseManager
             Database.synchronizedExecuteQuery(data, getplayer, getplayer_lock, player.getName());
         }
 
+        if(data.get("bountyissuer") != null && ((String)data.get("bountyissuer")).isEmpty())
+        {
+            data.put("bountyissuer", null);
+        }
+        
         return data;
     }
 
@@ -77,13 +92,27 @@ public class DatabaseManager
     {
         final int kills = player.getKills().getValue();
         final int deaths = player.getDeaths().getValue();
+        final LinkedHashSet<String> lastKills = player.getLastKills();
+        StringBuilder listBuilder = new StringBuilder();
+        Iterator<String> it = lastKills.iterator();
+        String next;
+        while(it.hasNext())
+        {
+            next = it.next();
+            if(listBuilder.length() > 0 && it.hasNext()) 
+                listBuilder.append(",");
+            listBuilder.append(next);
+        }
+        final String lastKillers = listBuilder.toString();
+        final int bounty = player.getBounty();
         final int id = player.getId();
+        final String issuer = player.hasBountyIssued() ? player.getBountyIssuer() : "";
         new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                Database.synchronizedExecuteUpdate(updateplayer, updateplayer_lock, kills, deaths, id);
+                Database.synchronizedExecuteUpdate(updateplayer, updateplayer_lock, kills, deaths, lastKillers, bounty, issuer, id);
             }
         }.runTaskAsynchronously(plugin);
     }
@@ -91,6 +120,49 @@ public class DatabaseManager
     public void deletePlayer(int id)
     {
         Database.synchronizedExecuteUpdate(deleteplayer, deleteplayer_lock, id);
+    }
+    
+    
+    /**
+     * Fetches all open bounties. Run this async as it uses SQL :P
+     * @return a ordered @code{Map<String, Integer>}
+     */
+    public Map<String, Integer> getOpenBounties()
+    {
+        LinkedHashMap<String, Integer> map = new LinkedHashMap<String, Integer>();
+        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        Map<String, Object> template = new HashMap<String, Object>();
+        template.put("bounty", null);
+        template.put("issuer", null);
+        results.add(template);
+        if(Database.synchronizedExecuteQuery(results, this.fetchAllBounty, this.fetchAllBounty_lock))
+        {
+            int bounty;
+            String issuer;
+            for(Map<String, Object> result : results)
+            {
+                issuer = (String) result.get("issuer");
+                bounty = (Integer) result.get("bounty");
+                map.put(issuer, bounty); 
+            }
+        }
+        return map;
+    }
+    
+    /**
+     * Resets all players. Run this async as it uses SQL :P
+     */
+    public void resetAll()
+    {
+        if(TopPvP.economy.isEnabled())
+        {
+            Map<String, Integer> openBounties = getOpenBounties();
+            for(Map.Entry<String, Integer> issue : openBounties.entrySet())
+            {
+                TopPvP.economy.depositPlayer(issue.getKey(), issue.getValue());
+            }
+        }
+        Database.synchronizedExecuteUpdate(resetAll, resetAll_lock);
     }
 
     private void connect() throws SQLException
@@ -112,6 +184,9 @@ public class DatabaseManager
             toppvp.addColumn("username", "varchar(16)").addProperty("NOT NULL").addProperty("UNIQUE");
             toppvp.addColumn("kills", "int(24)").addProperty("NOT NULL").addProperty("DEFAULT 0");
             toppvp.addColumn("deaths", "int(24)").addProperty("NOT NULL").addProperty("DEFAULT 0");
+            toppvp.addColumn("lastkillers", "varchar(50)").addProperty("NOT NULL").addProperty("DEFAULT ''");
+            toppvp.addColumn("bounty", "int(255)").addProperty("NOT NULL").addProperty("DEFAULT 0");
+            toppvp.addColumn("bountyissuer", "varchar(16)").addProperty("NOT NULL").addProperty("DEFAULT ''");
             toppvp.setPrimaryKey("id");
             toppvp.createTable(this.db);
         }
@@ -127,8 +202,10 @@ public class DatabaseManager
         {
             this.createplayer = this.db.prepare("INSERT INTO toppvp(`username`) VALUES(?)");
             this.getplayer = this.db.prepare("SELECT * FROM toppvp WHERE id = ?");
-            this.updateplayer = this.db.prepare("UPDATE toppvp SET kills = ?, deaths = ? WHERE id = ?");
+            this.updateplayer = this.db.prepare("UPDATE toppvp SET kills = ?, deaths = ?, lastkillers = ?, bounty = ?, bountyissuer = ? WHERE id = ?");
             this.deleteplayer = this.db.prepare("DELETE FROM toppvp WHERE id = ?");
+            this.fetchAllBounty = this.db.prepare("SELECT bounty, bountyissuer AS issuer FROM toppvp WHERE bountyissuer != ''");
+            this.resetAll = this.db.prepare("UPDATE toppvp SET kills = 0, deaths = 0, lastkillers = '', bounty = 0, bountyissuer = '' WHERE 1 ORDER BY bounty DESC");
         }
     }
 

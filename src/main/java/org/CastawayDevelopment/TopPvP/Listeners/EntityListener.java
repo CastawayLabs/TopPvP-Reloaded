@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import org.CastawayDevelopment.TopPvP.Managers.PlayerClass;
 import org.CastawayDevelopment.TopPvP.Managers.PlayerManager;
 import org.CastawayDevelopment.TopPvP.TopPvP;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -85,9 +87,6 @@ public class EntityListener implements Listener
                     {
                         pcKiller.getKills().increment();
                         pcVictim.getDeaths().increment();
-
-                        pcKiller.update();
-                        pcVictim.update();
                         
                         lastKills.add(pcVictim.getName());
                         if(lastKills.size() > 3)
@@ -102,6 +101,22 @@ public class EntityListener implements Listener
                         // It holds now that the 'queue' does not contain
                         // more than three elements
                     }
+                    
+                    if(TopPvP.economy.isEnabled() && pcVictim.hasBountyIssued())
+                    {
+                        String issuerName = pcVictim.getBountyIssuer();
+                        TopPvP.economy.depositPlayer(pcKiller.getName(), pcVictim.getBounty());
+                        pcKiller.sendMessage(ChatColor.GREEN+"You have collected a bounty from %s for killing %s", issuerName, pcVictim.getName());
+                        Player issuer = Bukkit.getPlayerExact(issuerName);
+                        if(issuer != null)
+                        {
+                            issuer.sendMessage(ChatColor.GREEN+String.format("The bounty hunt was succesful! %s has been eliminated!", pcVictim.getName()));
+                        }
+                        pcVictim.resetBounty();
+                    }
+                    
+                    pcKiller.update();
+                    pcVictim.update();
                 }
                 else if (killer instanceof Monster || (killer instanceof Projectile && ((Projectile)killer).getShooter() instanceof Skeleton))
                 {
