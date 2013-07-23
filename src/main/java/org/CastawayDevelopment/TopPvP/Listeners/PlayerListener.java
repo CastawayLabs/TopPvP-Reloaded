@@ -33,7 +33,6 @@ public class PlayerListener implements Listener
     public PlayerListener(TopPvP plugin)
     {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler

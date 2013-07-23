@@ -32,6 +32,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TopPvP extends JavaPlugin
@@ -134,6 +135,8 @@ public class TopPvP extends JavaPlugin
         {
             getDataFolder().mkdirs();
         }
+        
+        saveDefaultConfig();
 
         TopPvP.active = this;
 
@@ -154,6 +157,11 @@ public class TopPvP extends JavaPlugin
         playerManager = new PlayerManager(this);
         
         initCommands();
+        if(!setupEconomy())
+        {
+            getLogger().log(Level.SEVERE, "Failed to setup the economy!");
+            this.setEnabled(false);
+        }
     }
     
     private void initCommands()
@@ -161,6 +169,16 @@ public class TopPvP extends JavaPlugin
         this.bountyCmd = new BountyCommand(this);
         this.setCmd = new SetCommand(this);
         this.resetCmd = new ResetCommand(this);
+    }
+    
+    private boolean setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null)
+        {
+            economy = economyProvider.getProvider();
+        }
+        return (economy != null);
     }
 
     /**
@@ -195,11 +213,12 @@ public class TopPvP extends JavaPlugin
             
         try
         {
-            sub = Sub.valueOf(cmdName);
+            sub = Sub.valueOf(cmdName.toUpperCase());
         }
         catch(IllegalArgumentException ex)
         {
-            return false;
+            sender.sendMessage(ChatColor.DARK_RED+"Command not found");
+            return true;
         }
         
         TopPvPCommand cmd;

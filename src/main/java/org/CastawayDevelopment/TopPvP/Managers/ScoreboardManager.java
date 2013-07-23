@@ -22,7 +22,6 @@ import org.CastawayDevelopment.TopPvP.TopPvP;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -50,6 +49,8 @@ public class ScoreboardManager
             sb = Bukkit.getScoreboardManager().getNewScoreboard();
         }
         
+        final Scoreboard assign = sb;
+        
         new BukkitRunnable()
         {
             @Override
@@ -72,6 +73,7 @@ public class ScoreboardManager
                     @Override
                     public void run()
                     {
+                        player.setScoreboard(assign);
                         ScoreboardManager.this.registerPlayer(player);
                     }
                 }.runTask(ScoreboardManager.this.plugin);
@@ -83,7 +85,7 @@ public class ScoreboardManager
     private void registerPlayer(PlayerClass player)
     {
         Scoreboard sb = player.getScoreboard();
-        Objective stats = sb.registerNewObjective("stats", "dummy");
+        Objective stats = sb.registerNewObjective("toppvp_stats", "dummy");
         stats.setDisplayName(ChatColor.GOLD+""+ChatColor.BOLD+""+ChatColor.ITALIC+"Stats");
         Score kills = stats.getScore(getScore("Kills"));
         Score deaths = stats.getScore(getScore("Deaths"));
@@ -97,7 +99,7 @@ public class ScoreboardManager
     public void updatePlayer(PlayerClass player)
     {
         Scoreboard sb = player.getScoreboard();
-        Objective stats = sb.getObjective("stats");
+        Objective stats = sb.getObjective("toppvp_stats");
         Score kills = stats.getScore(getScore("Kills"));
         Score deaths = stats.getScore(getScore("Deaths"));
         kills.setScore(player.getKills().getValue());

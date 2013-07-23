@@ -105,7 +105,13 @@ public class PlayerClass extends AbstractPlayerClass
     
     public void update()
     {
-        TopPvP.getDatabaseManager().updatePlayer(this);
+        update(false);
+    }
+    
+    public void update(boolean onlyScoreboard)
+    {
+        if(!onlyScoreboard)
+            TopPvP.getDatabaseManager().updatePlayer(this);
         TopPvP.getScoreboardManager().updatePlayer(this);
     }
     

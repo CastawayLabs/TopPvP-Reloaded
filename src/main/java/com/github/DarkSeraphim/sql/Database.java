@@ -92,9 +92,13 @@ public abstract class Database
         final List<Map<String, Object>> resultsList = new ArrayList<Map<String, Object>>();
         resultsList.add(results);
         
-        boolean ret = Database.synchronizedExecuteQuery(resultsList, stmt, lock, params);
-        results = resultsList.get(0);
-        return ret;
+        if(!Database.synchronizedExecuteQuery(resultsList, stmt, lock, params))
+            return false;
+        for(Map.Entry<String, Object> entry : resultsList.get(0).entrySet())
+        {
+            results.put(entry.getKey(), entry.getValue());
+        }
+        return true;
     }
     
     /**

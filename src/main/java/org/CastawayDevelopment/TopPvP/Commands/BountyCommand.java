@@ -79,10 +79,14 @@ public class BountyCommand extends TopPvPCommand
             if(pcOther.hasBountyIssued())
             {
                 TopPvP.economy.depositPlayer(pcOther.getBountyIssuer(), pcOther.getBounty());
+                Player lastIssuer = Bukkit.getPlayerExact(pcOther.getBountyIssuer());
+                if(lastIssuer != null)
+                    lastIssuer.sendMessage(ChatColor.GOLD+String.format("%s offered a higher bounty for %s: %d", player.getName(), pcOther.getName(), bounty));
             }
             pcOther.setBounty(bounty);
             pcOther.setBountyIssuer(player.getName());
             pcOther.update();
+            player.sendMessage(ChatColor.GREEN+String.format("Bounty placed on %s's head", pcOther.getName()));
         }
     }
 

@@ -45,7 +45,6 @@ public class EntityListener implements Listener
     public EntityListener(TopPvP plugin)
     {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     /**
@@ -81,12 +80,13 @@ public class EntityListener implements Listener
                     PlayerClass pcKiller = manager.getPlayer((Player) killer);
                     PlayerClass pcVictim = manager.getPlayer((Player) victim);
                     
+                    pcVictim.getDeaths().increment();
+
                     
                     LinkedHashSet<String> lastKills = pcKiller.getLastKills();
                     if(!lastKills.contains(pcVictim.getName()))
                     {
                         pcKiller.getKills().increment();
-                        pcVictim.getDeaths().increment();
                         
                         lastKills.add(pcVictim.getName());
                         if(lastKills.size() > 3)

@@ -175,7 +175,7 @@ public class DatabaseManager
             }
         }
 
-        boolean exists = this.db.checkTable(tableName);
+        boolean exists = this.db.checkTable("toppvp");
         if (!exists)
         {
             // Create it.
@@ -201,11 +201,11 @@ public class DatabaseManager
         if(this.db.isReady())
         {
             this.createplayer = this.db.prepare("INSERT INTO toppvp(`username`) VALUES(?)");
-            this.getplayer = this.db.prepare("SELECT * FROM toppvp WHERE id = ?");
+            this.getplayer = this.db.prepare("SELECT * FROM toppvp WHERE `username` = ?");
             this.updateplayer = this.db.prepare("UPDATE toppvp SET kills = ?, deaths = ?, lastkillers = ?, bounty = ?, bountyissuer = ? WHERE id = ?");
             this.deleteplayer = this.db.prepare("DELETE FROM toppvp WHERE id = ?");
-            this.fetchAllBounty = this.db.prepare("SELECT bounty, bountyissuer AS issuer FROM toppvp WHERE bountyissuer != ''");
-            this.resetAll = this.db.prepare("UPDATE toppvp SET kills = 0, deaths = 0, lastkillers = '', bounty = 0, bountyissuer = '' WHERE 1 ORDER BY bounty DESC");
+            this.fetchAllBounty = this.db.prepare("SELECT bounty, bountyissuer AS issuer FROM toppvp WHERE bountyissuer != '' ORDER BY `bounty` DESC");
+            this.resetAll = this.db.prepare("UPDATE toppvp SET kills = 0, deaths = 0, lastkillers = '', bounty = 0, bountyissuer = '' WHERE 1");
         }
     }
 

@@ -25,9 +25,9 @@ public class ResetCommand extends TopPvPCommand
     @Override
     public void execute(CommandSender sender, String[] args, boolean isAlias)
     {
-        if(args.length < 2)
+        if(args.length < 1)
         {
-            sender.sendMessage(ChatColor.RED+"The correct usage is /toppvp set <k[ills]|d[eaths]> <player> <amount>");
+            sender.sendMessage(ChatColor.RED+"The correct usage is /toppvp reset <a[ll]|p[layer]> [playername]");
             return;
         }
         
@@ -46,16 +46,15 @@ public class ResetCommand extends TopPvPCommand
             return;
         }
         
-        if(set == Reset.P && args.length == 2)
+        if(set == Reset.P && args.length != 2)
         {
-            sender.sendMessage(ChatColor.RED+"The correct usage is /toppvp set <k[ills]|d[eaths]> <player> <amount>");
+            sender.sendMessage(ChatColor.RED+"The correct usage is /toppvp reset <a[ll]|p[layer]> [playername]");
             return;
         }
-        boolean update = true;
         switch(set)
         {
             case P:
-                Player other = Bukkit.getPlayerExact(args[2]);
+                Player other = Bukkit.getPlayerExact(args[1]);
                 if(other == null)
                 {
                     sender.sendMessage(ChatColor.RED+"That player is not online.");
@@ -70,6 +69,16 @@ public class ResetCommand extends TopPvPCommand
                 break;
             case A:
                 this.plugin.getDatabaseManager().resetAll();
+                PlayerClass pc;
+                for(Player player : Bukkit.getOnlinePlayers())
+                {
+                    pc = this.plugin.getPlayerManager().getPlayer(player);
+                    pc.getKills().setValue(0);
+                    pc.getDeaths().setValue(0);
+                    pc.resetBounty();
+                    pc.getLastKills().clear();
+                    if(pc != null) pc.update(true);
+                }
                 break;
         }
         if(set == Reset.P)
