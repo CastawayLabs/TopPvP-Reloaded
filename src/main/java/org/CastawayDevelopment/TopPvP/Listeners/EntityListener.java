@@ -102,10 +102,10 @@ public class EntityListener implements Listener
                         // more than three elements
                     }
                     
-                    if(TopPvP.economy.isEnabled() && pcVictim.hasBountyIssued())
+                    if(this.plugin.economy.isEnabled() && pcVictim.hasBountyIssued())
                     {
                         String issuerName = pcVictim.getBountyIssuer();
-                        TopPvP.economy.depositPlayer(pcKiller.getName(), pcVictim.getBounty());
+                        this.plugin.economy.depositPlayer(pcKiller.getName(), pcVictim.getBounty());
                         pcKiller.sendMessage(ChatColor.GREEN+"You have collected a bounty from %s for killing %s", issuerName, pcVictim.getName());
                         Player issuer = Bukkit.getPlayerExact(issuerName);
                         if(issuer != null)
@@ -115,8 +115,8 @@ public class EntityListener implements Listener
                         pcVictim.resetBounty();
                     }
                     
-                    pcKiller.update();
-                    pcVictim.update();
+                    pcKiller.update(this.plugin);
+                    pcVictim.update(this.plugin);
                 }
                 else if (killer instanceof Monster || (killer instanceof Projectile && ((Projectile)killer).getShooter() instanceof Skeleton))
                 {

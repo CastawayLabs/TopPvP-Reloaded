@@ -54,10 +54,10 @@ public class PlayerClass extends AbstractPlayerClass
     
     private String bountyIssuer;
     
-    protected PlayerClass(Player player)
+    protected PlayerClass(Player player, TopPvP plugin)
     {
         super(player);
-        Map<String, Object> data = TopPvP.getDatabaseManager().getPlayerData(player);
+        Map<String, Object> data = plugin.getDatabaseManager().getPlayerData(player);
         this.id = (Integer) data.get("id");
         this.kills = new Incrementable((Integer) data.get("kills"));
         this.deaths = new Incrementable((Integer) data.get("deaths"));
@@ -103,16 +103,16 @@ public class PlayerClass extends AbstractPlayerClass
         return this.lastKills;
     }
     
-    public void update()
+    public void update(TopPvP plugin)
     {
-        update(false);
+        update(false, plugin);
     }
     
-    public void update(boolean onlyScoreboard)
+    public void update(boolean onlyScoreboard, TopPvP plugin)
     {
         if(!onlyScoreboard)
-            TopPvP.getDatabaseManager().updatePlayer(this);
-        TopPvP.getScoreboardManager().updatePlayer(this);
+            plugin.getDatabaseManager().updatePlayer(this);
+        plugin.getScoreboardManager().updatePlayer(this);
     }
     
     public boolean setBounty(int b)

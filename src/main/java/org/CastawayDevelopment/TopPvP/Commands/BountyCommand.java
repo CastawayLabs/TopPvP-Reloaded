@@ -26,7 +26,7 @@ public class BountyCommand extends TopPvPCommand
     @Override
     public void execute(CommandSender sender, String[] args, boolean isAlias)
     {
-        if(!TopPvP.economy.isEnabled())
+        if(!this.plugin.economy.isEnabled())
         {
             sender.sendMessage(ChatColor.RED+"The economy is disabled");
             return;
@@ -67,25 +67,25 @@ public class BountyCommand extends TopPvPCommand
             return;
         }
         
-        if(!TopPvP.economy.has(player.getName(), bounty))
+        if(!this.plugin.economy.has(player.getName(), bounty))
         {
             player.sendMessage(ChatColor.RED+"You do not have sufficient funds to do that.");
             return;
         }
         
-        EconomyResponse er = TopPvP.economy.withdrawPlayer(player.getName(), bounty);
+        EconomyResponse er = this.plugin.economy.withdrawPlayer(player.getName(), bounty);
         if(er.transactionSuccess())
         {
             if(pcOther.hasBountyIssued())
             {
-                TopPvP.economy.depositPlayer(pcOther.getBountyIssuer(), pcOther.getBounty());
+                this.plugin.economy.depositPlayer(pcOther.getBountyIssuer(), pcOther.getBounty());
                 Player lastIssuer = Bukkit.getPlayerExact(pcOther.getBountyIssuer());
                 if(lastIssuer != null)
                     lastIssuer.sendMessage(ChatColor.GOLD+String.format("%s offered a higher bounty for %s: %d", player.getName(), pcOther.getName(), bounty));
             }
             pcOther.setBounty(bounty);
             pcOther.setBountyIssuer(player.getName());
-            pcOther.update();
+            pcOther.update(this.plugin);
             player.sendMessage(ChatColor.GREEN+String.format("Bounty placed on %s's head", pcOther.getName()));
         }
     }

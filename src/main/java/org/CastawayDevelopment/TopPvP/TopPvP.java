@@ -45,14 +45,14 @@ public class TopPvP extends JavaPlugin
     /**
      * Access Economy via Vault
      */
-    public static Economy economy = null;
+    public Economy economy = null;
     /**
      * Access private instance of this plugin.
      */
-    private static TopPvP active = null;
-    private static DatabaseManager databaseManager;
-    private static ScoreboardManager scoreboardManager;
-    private static PlayerManager playerManager;
+    private TopPvP active = null;
+    private DatabaseManager databaseManager;
+    private ScoreboardManager scoreboardManager;
+    private PlayerManager playerManager;
     
     /*
      * Commands
@@ -68,7 +68,7 @@ public class TopPvP extends JavaPlugin
      */
     public static String getPluginName()
     {
-        return TopPvP.active.getDescription().getName();
+        return "TopPvP";
     }
 
     /**
@@ -94,17 +94,17 @@ public class TopPvP extends JavaPlugin
         Logger.getLogger("TopPvP").log(level, "[TopPvP] " + msg);
     }
 
-    public static DatabaseManager getDatabaseManager()
+    public DatabaseManager getDatabaseManager()
     {
         return databaseManager;
     }
 
-    public static ScoreboardManager getScoreboardManager()
+    public ScoreboardManager getScoreboardManager()
     {
         return scoreboardManager;
     }
     
-    public static PlayerManager getPlayerManager()
+    public PlayerManager getPlayerManager()
     {
         return playerManager;
     }
@@ -137,8 +137,6 @@ public class TopPvP extends JavaPlugin
         }
         
         saveDefaultConfig();
-
-        TopPvP.active = this;
 
         scoreboardManager = new ScoreboardManager(this);
 
@@ -188,9 +186,6 @@ public class TopPvP extends JavaPlugin
     @Override
     public void onDisable()
     {
-        TopPvP.active = null;
-        TopPvP.databaseManager = null;
-        TopPvP.scoreboardManager = null;
     }
     
     @Override

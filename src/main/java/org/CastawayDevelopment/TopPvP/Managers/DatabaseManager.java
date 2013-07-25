@@ -154,12 +154,12 @@ public class DatabaseManager
      */
     public void resetAll()
     {
-        if(TopPvP.economy.isEnabled())
+        if(this.plugin.economy.isEnabled())
         {
             Map<String, Integer> openBounties = getOpenBounties();
             for(Map.Entry<String, Integer> issue : openBounties.entrySet())
             {
-                TopPvP.economy.depositPlayer(issue.getKey(), issue.getValue());
+                this.plugin.economy.depositPlayer(issue.getKey(), issue.getValue());
             }
         }
         Database.synchronizedExecuteUpdate(resetAll, resetAll_lock);

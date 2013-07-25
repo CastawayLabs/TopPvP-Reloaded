@@ -28,14 +28,14 @@ public class PlayerManager
             @Override
             public void run()
             {
-                final PlayerClass pc = new PlayerClass(player);
+                final PlayerClass pc = new PlayerClass(player, plugin);
                 new BukkitRunnable()
                 {
                     @Override
                     public void run()
                     {
                         PlayerManager.this.players.put(pc.getName(), pc);
-                        TopPvP.getScoreboardManager().onPlayerJoin(pc);
+                        plugin.getScoreboardManager().onPlayerJoin(pc);
                     }
                 }.runTask(plugin);
             }

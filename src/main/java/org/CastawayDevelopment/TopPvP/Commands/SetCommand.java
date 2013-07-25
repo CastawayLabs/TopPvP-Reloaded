@@ -87,7 +87,7 @@ public class SetCommand extends TopPvPCommand
         
         if(update)
         {
-            pcOther.update();
+            pcOther.update(this.plugin);
         }
         sender.sendMessage(ChatColor.GREEN+"Player updated!");
     }

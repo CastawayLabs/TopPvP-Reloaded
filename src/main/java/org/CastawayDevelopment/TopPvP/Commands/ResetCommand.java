@@ -65,7 +65,7 @@ public class ResetCommand extends TopPvPCommand
                 pcOther.getDeaths().setValue(0);
                 pcOther.resetBounty();
                 pcOther.getLastKills().clear();
-                pcOther.update();
+                pcOther.update(this.plugin);
                 break;
             case A:
                 this.plugin.getDatabaseManager().resetAll();
@@ -77,7 +77,7 @@ public class ResetCommand extends TopPvPCommand
                     pc.getDeaths().setValue(0);
                     pc.resetBounty();
                     pc.getLastKills().clear();
-                    if(pc != null) pc.update(true);
+                    if(pc != null) pc.update(true, this.plugin);
                 }
                 break;
         }
